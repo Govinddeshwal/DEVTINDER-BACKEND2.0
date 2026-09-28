@@ -1,28 +1,21 @@
 const express = require("express");
+const connectDB = require("./config/database");
+const { auth } = require("./auth");
 
 const app = express();
 
+connectDB();
+
 port = 5002;
 
-app.use(
-  "/user",
-  (req, res, next) => {
-    // res.send("welcome 1 to devtinder.");
-    next();
-  },
-  (req, res, next) => {
-    // res.send("welcome 2 to devtinder.");
-    next();
-  },
-  (req, res) => {
-    res.send("welcome 3 to devtinder.");
-  },
-  (req, res) => {
-    res.send("welcome to devtinder.");
-  },
-);
-app.use("/hello", (req, res) => {
-  res.send("hello to devtinder.");
+app.use("/", (req, res) => {
+  res.send("this is / route");
+  console.log("this is / route");
+});
+
+app.use("/user", (req, res) => {
+  console.log("this is /user route");
+  res.send("this is /user route");
 });
 
 app.listen(port, (req, res) => {
