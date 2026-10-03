@@ -22,8 +22,12 @@ connectDB()
 app.post("/signup", async (req, res) => {
   const userObj = req.body;
   const user = new User(userObj);
-  await user.save();
-  res.send("user added successfully!");
+  try {
+    await user.save();
+    res.send("user added successfully!");
+  } catch (err) {
+    res.status(400).send("Something went wrong: " + err.message);
+  }
 });
 
 // get a user ----
@@ -68,11 +72,25 @@ app.delete("/user", async (req, res) => {
 });
 
 // update a user ----
-app.patch("/user", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params.userId;
   const data = req.body;
+  const skills = req.body.skills;
 
   try {
+    const ALLOWED_UPDATES = ["firstName", "photoUrl", "about", "skills"];
+
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      ALLOWED_UPDATES.includes(k),
+    );
+
+    if (!isUpdateAllowed) {
+      throw new Error("update not allowed");
+    }
+    if (skills.length > 10) {
+      throw new Error("skills can't be more than 10!");
+    }
+
     (await User.findByIdAndUpdate({ _id: userId }, data, {
       runValidators: true,
     }),

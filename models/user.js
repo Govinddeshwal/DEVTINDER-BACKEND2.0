@@ -1,9 +1,7 @@
 const mongoose = require("mongoose");
-// Helper function to test regex
-const validateEmail = function (email) {
-  const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-  return regex.test(email);
-};
+// validate email function
+
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -24,7 +22,21 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      validate: [validateEmail, "Please fill a valid email address"],
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Invalid email address: " + value);
+        }
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+      trim: true,
+      validate(value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error("Enter a Strong Password");
+        }
+      },
     },
     gender: {
       type: String,
@@ -41,6 +53,11 @@ const userSchema = new mongoose.Schema(
     photoUrl: {
       type: String,
       trim: true,
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Invalid Photo URL: " + value);
+        }
+      },
     },
     about: {
       type: String,
@@ -49,7 +66,6 @@ const userSchema = new mongoose.Schema(
     },
     skills: {
       type: [String],
-      trim: true,
     },
   },
   {
