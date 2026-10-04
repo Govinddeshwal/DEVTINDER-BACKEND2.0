@@ -1,7 +1,8 @@
 const express = require("express");
 const connectDB = require("./config/database");
-const { auth } = require("./auth");
+const { auth } = require("./middleware/auth");
 const User = require("./models/user");
+const validateSignupData = require("./utils/validation");
 
 const app = express();
 app.use(express.json());
@@ -18,15 +19,22 @@ connectDB()
   .catch((err) => {
     console.error("Database cannot be connected! ");
   });
-// add a user ----
+
+// signup a user ----
 app.post("/signup", async (req, res) => {
-  const userObj = req.body;
-  const user = new User(userObj);
   try {
+    // validation of data ---
+    validateSignupData(req);
+    // encrypt the password ---
+
+    // creating a new instance of the User model
+    const userObj = req.body;
+    const user = new User(userObj);
+
     await user.save();
     res.send("user added successfully!");
   } catch (err) {
-    res.status(400).send("Something went wrong: " + err.message);
+    res.status(400).send("ERROR : " + err.message);
   }
 });
 
