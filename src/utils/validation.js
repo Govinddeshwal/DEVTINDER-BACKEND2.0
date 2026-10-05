@@ -4,7 +4,7 @@ const validator = require("validator");
 const validateSignupData = (req, res) => {
   const { firstName, lastName, emailId, password } = req.body;
 
-  if (!firstName || !lastname) {
+  if (!firstName || !lastName) {
     throw new Error("name is required!");
   } else if (!validator.isEmail(emailId)) {
     throw new Error("Please enter a valid email!");
@@ -13,12 +13,15 @@ const validateSignupData = (req, res) => {
   }
 };
 
-const hashPassword = (req, res) => {
-  const saltRounds = 10;
+const hashPassword = async (req) => {
+  const password = req.body.password;
 
-  const myPlaintextPassword = req.body.password;
+  const hash = await bcrypt.hash(password, 10);
 
-  bcrypt.hash(myPlaintextPassword, saltRounds, function (err, hash) {});
+  return hash;
 };
 
-module.exports = { hashPassword, validateSignupData };
+module.exports = {
+  hashPassword,
+  validateSignupData,
+};

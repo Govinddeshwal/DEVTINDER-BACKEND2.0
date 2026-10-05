@@ -2,7 +2,8 @@ const express = require("express");
 const connectDB = require("./config/database");
 const { auth } = require("./middleware/auth");
 const User = require("./models/user");
-const validateSignupData = require("./utils/validation");
+const { validateSignupData } = require("./utils/validation");
+const { hashPassword } = require("./utils/validation");
 
 const app = express();
 app.use(express.json());
@@ -25,11 +26,20 @@ app.post("/signup", async (req, res) => {
   try {
     // validation of data ---
     validateSignupData(req);
+
     // encrypt the password ---
+    const hash = await hashPassword(req);
 
     // creating a new instance of the User model
-    const userObj = req.body;
-    const user = new User(userObj);
+    const { firstName, lastName, emailId, age, gender } = req.body;
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      age,
+      gender,
+      password: hash,
+    });
 
     await user.save();
     res.send("user added successfully!");
@@ -37,6 +47,10 @@ app.post("/signup", async (req, res) => {
     res.status(400).send("ERROR : " + err.message);
   }
 });
+
+// login a user ----
+
+app.get("/login", async (req, res) => {});
 
 // get a user ----
 app.get("/user", async (req, res) => {
