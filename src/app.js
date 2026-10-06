@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const connectDB = require("./config/database");
 const { auth } = require("./middleware/auth");
 const User = require("./models/user");
@@ -50,7 +51,24 @@ app.post("/signup", async (req, res) => {
 
 // login a user ----
 
-app.get("/login", async (req, res) => {});
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+
+    const user = await User.findOne({ emailId: emailId });
+    console.log(user);
+    if (!user) {
+      throw new Error("invalid credentials!");
+    }
+    const isPassword = await bcrypt.compareSync(password, user.password);
+    if (!isPassword) {
+      throw new Error("invalid credentials!");
+    }
+    res.send("user login successfully.");
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
 
 // get a user ----
 app.get("/user", async (req, res) => {
